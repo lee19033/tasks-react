@@ -9,8 +9,17 @@ import * as Yup from 'yup';
 import { Formik } from 'formik';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-
-
+import Card from '@material-ui/core/Card'; 
+import CardHeader from '@material-ui/core/CardHeader';
+import CardContent from '@material-ui/core/CardContent'; 
+import Grid from '@material-ui/core/Grid'; 
+import Divider from '@material-ui/core/Divider';
+import IconButton from '@material-ui/core/IconButton';
+import ClearSharpIcon from '@mui/icons-material/ClearSharp';
+import { MenuItem } from '@material-ui/core';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 
 import {useHttpClient} from "../../hooks/http-hook";
 
@@ -41,6 +50,21 @@ const NewGroup = (props) => {
     const groupDescritionRef = useRef();
     const groupImageRef = useRef();
     const { isLoading, error, sendRequest, clearError  } = useHttpClient();
+    const [color, setColor] = React.useState('');
+    const [openColor, setOpenColor] = React.useState(false);
+  
+    const handleChangeColor = (event) => {
+      setColor(event.target.value);
+    };
+  
+    const handleCloseColor = () => {
+      setOpenColor(false);
+    };
+  
+    const handleOpenColor = () => {
+      setOpenColor(true);
+    };
+  
 
     const createNewGroup = async (values) => {
   
@@ -106,22 +130,24 @@ const NewGroup = (props) => {
    }
 
     return (
+
       <Box
             sx={{
-              backgroundColor: '#f4f6f8',
+              backgroundColor: 'white',
               display: 'flex',
               flexDirection: 'column',
               height: '100%',
+              width: '100%',
             }}
           >
-      <Container maxWidth="sm">
+ 
       <Formik
                 initialValues={{
                   groupName: '',
                   groupDescription: '',
                 }}
                 validationSchema={Yup.object().shape({
-                  groupName: Yup.string().max(50).required('Group name is required'),
+                  groupName: Yup.string().max(50).required('Board name is required'),
                   groupDescription: Yup.string().max(250),                          
                 })}
                 onSubmit={(values) => {
@@ -138,82 +164,130 @@ const NewGroup = (props) => {
                   values
                 }) => (
                   <form onSubmit={handleSubmit}>
-                    <Box
-                      sx={{
-                        pb:1,
-                        pt: 1
-                      }}
-                    >
-                      <Typography
-                        align="center"
-                        color="textSecondary"
-                        variant="h4"
-                      >
-                        Add new board
-                      </Typography>
-                    </Box>
 
-                    <TextField
+<Card>
+            <CardHeader sx={{padding: '5px', paddingLeft:'16px'}}
+              title="New Board"
+              action={
+                <IconButton aria-label="settings" onClick={handleClose}>                                        
+                  <ClearSharpIcon />
+                </IconButton>
+              }
+            />
+            <Divider />
+            <CardContent>
+              <Grid
+                container
+                spacing={3}
+              >
+                <Grid
+                  item
+                  md={12}
+                  xs={12}
+                >
+                  <TextField
                       error={Boolean(touched.groupName && errors.groupName)}
                       fullWidth
                       helperText={touched.groupName && errors.groupName}
                       label="Board Name"
-                      margin="normal"
+                      required
                       name="groupName"
                       onBlur={handleBlur}
                       onChange={handleChange}
                       type="text"
                       value={values.groupName}
-                      variant="outlined"
+                      variant="outlined"                      
                     />
-
-                    <TextField
+                </Grid>
+                <Grid
+                  item
+                  md={12}
+                  xs={12}
+                >
+                 <TextField
                       error={Boolean(touched.groupDescription && errors.groupDescription)}
                       fullWidth
                       helperText={touched.groupDescription && errors.groupDescription}
                       label="Board Description"
-                      margin="normal"
+                  
                       name="groupDescription"
                       onBlur={handleBlur}
                       onChange={handleChange}
                       type="text"
                       value={values.groupDescription}
                       variant="outlined"
-                    />
+                      multiline
+                      rows={3}
+                    />                 
+                 
+                </Grid>
+                <Divider />
 
-<Box display='flex'>            
-            <Box p={1}>
-              <Button onClick={handleClose}
-                      variant="contained" 
-                      color="primary" className={classes.marginButton}> 
-                  Cancel
-                </Button>
-           </Box>
-          <Box p={1}>
-            <Button onClick={handleSubmit}
-                    variant="contained" 
-                    color="primary" 
-                    className={classes.marginButton}>
-              Submit
-            </Button>
-          </Box>
-       </Box>
+                <Grid item
+                  md={12}
+                  xs={12}>
+
+
+<Button sx={{ display: 'block', mt: 0}} onClick={handleOpenColor}>
+        Select board color 
+      </Button>
+      <FormControl sx={{ m: 0, maxHeight:120, minWidth: 200, display: 'inline-flex'  }}>
+        <InputLabel id="demo-controlled-open-select-label">Color</InputLabel>
+        <Select
+          labelId="demo-controlled-open-select-label"
+          id="demo-controlled-open-select"
+          open={openColor}
+          onClose={handleCloseColor}
+          onOpen={handleOpenColor}
+          value={color}
+          label="color"
+          onChange={handleChangeColor}
+        >
+          <MenuItem value={'blue'}><Box sx={{width:'130px', height: '20px', backgroundColor: 'blue', margin: '10px',color: 'white', align:'middle'}}></Box></MenuItem>
+          <MenuItem value={'red'}><Box sx={{width:'130px', height: '20px', backgroundColor: 'red', margin: '10px'}}></Box></MenuItem>
+          <MenuItem value={'green'}><Box sx={{width:'130px', height: '20px', backgroundColor: 'green', margin: '10px'}}></Box></MenuItem>
+          <MenuItem value={'orange'}><Box sx={{width:'130px', height: '20px', backgroundColor: 'orange', margin: '10px'}}></Box></MenuItem>
+        </Select>
+      </FormControl>
+
+                </Grid>  
+              </Grid>
+            </CardContent>
+
+            
+
+            <Divider />
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                p: 2
+              }}
+            >
+              <Button
+                color="primary"
+                variant="contained"
+                type="submit"
+                onClick={handleSubmit}
+              >
+                Create Board
+              </Button>
+            </Box>
+          </Card>
+                 
+                    
 
                     
-        
                     </form>
                 )}
             
 
             </Formik>
+            </Box>
             
 
       
-            </Container>
-               
-
-        
-       </Box>
+         
 
   )
 }

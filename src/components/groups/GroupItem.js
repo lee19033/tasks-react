@@ -15,7 +15,7 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 import MoneyIcon from '@material-ui/icons/Money';
-import { red } from '@material-ui/core/colors';
+import { red, orange, green, blue } from '@material-ui/core/colors';
 import {
   Avatar,
   Grid,
@@ -50,6 +50,7 @@ const useStyles = makeStyles({
   
 });
 
+const colors = [green[600],red[600],orange[600],blue[600]]; 
 
 const GroupItem = (props) => {
 
@@ -77,6 +78,7 @@ const GroupItem = (props) => {
       <Grid
         container
         spacing={3}
+        noWrap
         sx={{ justifyContent: 'space-between' }}
       >
         <Grid item>
@@ -92,19 +94,20 @@ const GroupItem = (props) => {
           <Typography sx={{ wordBreak: 'break-all'}}
             color="textPrimary"
             variant="h4"
+            noWrap
           >
-            {props.groupname.toUpperCase()}  
+            {props.groupname.substring(0,9).toUpperCase()}  
           </Typography>
         </Grid>
         <Grid item>
           <Avatar
             sx={{
-              backgroundColor: red[600],
+              backgroundColor: colors[colors.length * Math.random() | 0],
               height: 56,
               width: 56
             }}
           >
-            <MoneyIcon />
+            {props.groupname.substring(0,4).toUpperCase()}
           </Avatar>
         </Grid>
       </Grid>

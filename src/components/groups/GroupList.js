@@ -28,7 +28,7 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import NewGroup from './NewGroup';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
-
+import IconButton from '@material-ui/core/IconButton';
 
 
 const useStyles = makeStyles({
@@ -187,44 +187,69 @@ const GroupList = (props) => {
 
   
     const open = Boolean(anchorEl);
-    const id = open ? 'simple-popover' : undefined;
-  
-        if (groupList.length === 0) {
-            return(
-                <div>
-                <h2>No groups found!</h2>
-                </div>
-            )
-        }
+    const id = open ? 'simple-popover' : undefined;  
+        
         return (
           <Box
           sx={{
             minHeight: '100%',
           }}
         >
-            <Container maxWidth={false}	>          
+            <Container maxWidth={false}	sx={{
+            minHeight: '100%',
+          }}>          
 
-                <Grid container direction="column" mb={3}>
-            <Typography
-            color="textPrimary"
-            variant="h4"
-          >
-            My Family Board
+                <Grid container direction="row" mb={3}>
 
-          </Typography>
+                <Grid item xs={7} mt={1}>
 
+                <Typography
+                     color="primary"
+                     variant="h4"
+                  >
+                    My Family Board
+                       
+                 </Typography>
+                 </Grid>
+
+            
           <Grid item xs={5}> 
                           
+                          
                           <Box  sx={{ display: 'flex', flexDirection: 'row-reverse'}}>
-                                   <Button variant="contained" startIcon={<AddCircleOutlineIcon  />} onClick={openGroupHandel}>
+                            {!matches &&   
+                            <IconButton aria-label="new board" size="large">
+                              <AddCircleOutlineIcon fontSize="large" 
+                                                    color="primary"
+                                                    onClick={openGroupHandel} >
+                                </AddCircleOutlineIcon>                          
+                           </IconButton>
+                      
+
+                            }
+                            {matches && 
+                                   <Button variant="outlined" startIcon={<AddCircleOutlineIcon  />} onClick={openGroupHandel}>
                                            New Board
                                    </Button>
+                            }
+                                  
+
                                    </Box>
               </Grid>
           </Grid>
 
 
-          
+          { (groupList.length === 0) && 
+                <Box sx={{ paddingLeft:2, }}>
+                  <Typography
+                     color="primary"
+                     variant="h4"
+                  >
+                   No Boards yet.. , please create a new Board. 
+                       
+                 </Typography>
+                </Box>
+        }
              
           <Grid container spacing={3}>
                          
@@ -235,11 +260,12 @@ const GroupList = (props) => {
                          lg={3}
                           sm={6}
                           xl={3}
+                          md={3}
                           xs={12}>
                             
-                                <NavLink to={`/${group.id}/tasks/${group.groupName}`}>
-                                  <GroupItem key={group.id} 
-                                           groupid={group.id}
+                                <NavLink to={`/${group._id}/tasks/${group.groupName}`}>
+                                  <GroupItem key={group._id} 
+                                           groupid={group._id}
                                            groupname={group.groupName} 
                                            groupdescription={group.groupDescription}
                                            taskslen={group.groupTasks.length > 0 ? group.groupTasks.length : 0} />                                                     
@@ -255,24 +281,16 @@ const GroupList = (props) => {
                 </Grid>
 
                 <Dialog open={openGroup}>
-              <Box className={classes.cover} sx={{ display: 'flex', flexDirection: 'row-reverse'}}>
-              <CancelIcon sx={{color: 'white', fontSize: 'Large', width:'45px', height:'50px'}} onClick={closeGroupHandel} />
-           </Box>
-       <DialogContent className={classes.paper}>
-         <Box display="flex"> 
-          
-           <Box>
-             <NewGroup onSaveGroup={saveGroupHandler} onClose={closeGroupHandel} />
-           </Box>
-         </Box>
-       </DialogContent>
-     </Dialog>
+              
+                    <NewGroup onSaveGroup={saveGroupHandler} onClose={closeGroupHandel} />
+       
+             </Dialog>
 
 
  
             
                 </Container>
-                <ImageListBoard />
+                
        </Box>                    
         )
     }

@@ -65,7 +65,7 @@ export default function UserListSelect() {
               {selected.map((value) => (
                 <Chip key={value} 
                       label={value} sx={{ m: '2px' }} 
-                      avatar={<Avatar alt="Natacha" src={value} />}/>
+                      avatar={<Avatar alt={value} src={value} />}/>
               ))}
               
             </Box>

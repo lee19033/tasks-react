@@ -1,8 +1,6 @@
 import React, {useState} from 'react';
-import { Outlet } from 'react-router-dom';
 import { experimentalStyled } from '@material-ui/core';
 
-import GroupList from "./groups/GroupList";
 import GroupsDashboard from "./groups/GroupsDashboard";
 
 const DashboardLayoutRoot = experimentalStyled('div')(
@@ -11,7 +9,10 @@ const DashboardLayoutRoot = experimentalStyled('div')(
     display: 'flex',
     height: '100%',
     overflow: 'hidden',
-    width: '100%'
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      paddingLeft: 240
+    }
   })
 );
 
@@ -20,10 +21,8 @@ const DashboardLayoutWrapper = experimentalStyled('div')(
     display: 'flex',
     flex: '1 1 auto',
     overflow: 'hidden',
-    paddingTop: 64,
-    [theme.breakpoints.up('lg')]: {
-      paddingLeft: 120
-    }
+    paddingTop: 16,
+    
   })
 );
 
@@ -33,16 +32,17 @@ const DashboardLayoutContainer = experimentalStyled('div')({
   flex: '1 1 auto',
 });
 
-const DashboardLayoutContent = experimentalStyled('div')({
+const DashboardLayoutContent = experimentalStyled('div')(
+  ({ theme }) => 
+({
   flex: '1 1 auto',
   height: '100%',
-  overflow: 'auto'
-});
+  overflow: 'auto',
+  
+}));
 
 
 const DashboardLayout = (props) => {
-  const [isMobileNavOpen, setMobileNavOpen] = useState(false);
-
   
   const saveTaskHandler = (taskData) => {
     props.onSaveTaskHandler(taskData);

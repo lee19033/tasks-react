@@ -35,8 +35,7 @@ const Login = () => {
             'Content-Type': 'application/json'
           },                 
         );
-        
-        auth.login(responseData.user.id);
+        auth.login(responseData.user, responseData.token);
       }
       catch(err) {
         console.log(err);
@@ -69,8 +68,9 @@ const Login = () => {
                   email: Yup.string().email('Must be a valid email').max(55).required('Email is required'),
                   password: Yup.string().max(8).required('Password is required')
                 })}
-                onSubmit={(values) => {
+                onSubmit={(values, {resetForm}) => {
                   loginUser(values);
+                  resetForm({values: ''});
                 }}
               >
                 {({

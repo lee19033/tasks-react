@@ -4,6 +4,10 @@ import { useParams } from 'react-router-dom';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import Divider from '@material-ui/core/Divider';
+import CardContent from '@material-ui/core/CardContent';
 import IconButton from '@material-ui/core/IconButton';
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
@@ -21,6 +25,8 @@ import InputBase from '@material-ui/core/InputBase';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import { useTheme } from '@material-ui/core/styles';
+import DeleteIcon from '@material-ui/icons/Delete';
+import ClearSharpIcon from '@mui/icons-material/ClearSharp';
 
 
 import useInput from "../../hooks/use-input";
@@ -52,6 +58,13 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
+import Popper from '@material-ui/core/Popper';
+import Fade from '@material-ui/core/Fade';
+import Paper from '@material-ui/core/Paper';
+
+import ImageBoard from "../settings/imageBoard";
+import parseWithOptions from 'date-fns/esm/fp/parseWithOptions/index.js';
+
 
 
 const useStyles = makeStyles((theme) => ({
@@ -95,11 +108,7 @@ const MenuProps = {
 };
 
 
-const isNotEmpty = value => value.trim() !== ''; 
-const isEmail = value => value.includes('@'); 
-const isDuedate = value => value.trim() === '';
-
-const EditTask = (props) => {
+const EditTask = React.forwardRef((props,ref) => {
 
   const [value, setValue] = React.useState('');
   const [duedateValue, setDuedateValue] = React.useState('');
@@ -110,12 +119,32 @@ const EditTask = (props) => {
   //const taskId = useParams().id; 
   const taskName = useParams().taskName;
   const members = useContext(AuthContext);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [imageLink, setImageLink] = React.useState(props.data ? props.data.image : '');
+
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+    console.log(event.currentTarget);
+  };
+
+  const openPopper = Boolean(anchorEl);
+  const id = openPopper ? 'transitions-popper' : undefined;
+
+
 
   
+  const saveImage = (image) => {
+    console.log('getImageLink');
+    setImageLink(image);
+    //setOpen(false);
+  }
+
   //const groupName = useParams().groupName; 
 
-    const handleOpen = () => {
+    const handleOpen = (event) => {
       setOpen(true);
+
     };
 
     const handleCloseMembersList = () => {
@@ -164,6 +193,7 @@ const EditTask = (props) => {
             taskStatus: values.status,
             taskDuedate: values.dueDate,
             taskMembers: values.taskMembers,
+            taskImage: imageLink,
 
           }),
           {
@@ -194,6 +224,7 @@ const EditTask = (props) => {
             taskDuedate: values.dueDate,
             taskStatus: values.status,
             taskMembers: values.taskMembers,
+            taskImage: imageLink,
 
           }),
           {
@@ -217,25 +248,27 @@ const EditTask = (props) => {
     
 
     const handleSubmit = event => {
-        event.preventDefault();
-        //console.log('valid' + formIsValid);
-        //if (!formIsValid) {
-        //  return; 
-        //}
+      event.preventDefault();
+      //console.log('valid' + formIsValid);
+      //if (!formIsValid) {
+      //  return; 
+      //}
 
-        const taskData = {
-          groupId: props.groupId,
-          //taskName: taskNameValue,
-          //taskDescription: descriptionValue,
-          taskDuedate: value, 
-        };
+      const taskData = {
+        groupId: props.groupId,
+        //taskName: taskNameValue,
+        //taskDescription: descriptionValue,
+        taskDuedate: value, 
+      };
 
-        
-        console.log(taskData);
-        //props.onSaveTaskHandler(taskData);
-
-        console.log('submit');
       
+      console.log(taskData);
+      //props.onSaveTaskHandler(taskData);
+
+      console.log('submit');
+
+        //console.log('valid' + formIsValid);
+              
    };
 
    const handleClose = () => {
@@ -255,13 +288,14 @@ const EditTask = (props) => {
     return(
       <Box
             sx={{
-              backgroundColor: '#f4f6f8',
+              backgroundColor: 'white',
               display: 'flex',
               flexDirection: 'column',
               height: '100%',
+              width: '100%',
             }}
           >
-      <Container maxWidth="sm">
+ 
       <Formik
                 initialValues={{
                   taskName: props.data? props.data.name : '',
@@ -269,7 +303,7 @@ const EditTask = (props) => {
                   taskMembers: props.data ? props.data.members : [],
                   status: props.data ? props.data.status : false, 
                   dueDate: (props.data) ? (props.data.duedate !== '' ? new Date(props.data.duedate).toISOString().substring(0, 10) : '') : '',
-                  image: ''
+                  image: imageLink ? imageLink : '', 
                 }}
                 validationSchema={Yup.object().shape({
                   taskName: Yup.string().max(50).required('Task name is required'),
@@ -277,15 +311,20 @@ const EditTask = (props) => {
                   taskMembers: Yup.array(),
                   dueDate: Yup.date(),
                   status: Yup.boolean(),
+                  image: Yup.string(),
+                
                           
                 })}
-                onSubmit={(values) => {
+                onSubmit={(values, {resetForm}) => {
+                  console.log('flag=' + editTask);
                   if (editTask) {
+                    console.log('update');
                     updateTask(values); 
                   }
                   else {
                     createNewTask(values);
                   }
+                  resetForm({values:''}); 
                 }}
               >
                 {({
@@ -297,27 +336,38 @@ const EditTask = (props) => {
                   touched,
                   values
                 }) => (
-                  <form onSubmit={handleSubmit}>
-                    <Box
-                      sx={{
-                        pb:1,
-                        pt: 1
-                      }}
-                    >
-                      <Typography
-                        align="center"
-                        color="textSecondary"
-                        variant="h4"
-                      >
-                        {editTask ? 'Edit Task' : 'New Task'} 
-                      </Typography>
-                    </Box>
-                    <TextField
+                  <form onSubmit={handleSubmit}
+                 
+          >
+
+            <Card>
+            <CardHeader sx={{padding: '5px', paddingLeft:'16px'}}
+              title = {editTask ? "Edit Task" : "New Task"}
+              action={
+                <IconButton aria-label="settings" onClick={handleClose}>                                        
+                  <ClearSharpIcon />
+                </IconButton>
+              }
+      
+            />
+            <Divider />
+            <CardContent>
+              <Grid
+                container
+                spacing={3}
+              >
+                <Grid
+                  item
+                  md={12}
+                  xs={12}
+                >
+                  <TextField
                       error={Boolean(touched.taskName && errors.taskName)}
                       fullWidth
                       helperText={touched.taskName && errors.taskName}
                       label="Task Name"
-                      margin="normal"
+                      required
+                  
                       name="taskName"
                       onBlur={handleBlur}
                       onChange={handleChange}
@@ -325,23 +375,38 @@ const EditTask = (props) => {
                       value={values.taskName}
                       variant="outlined"
                     />
+                </Grid>
+                
+                <Grid
+                  item
+                  md={12}
+                  xs={12}
+                >
                     <TextField
                       error={Boolean(touched.taskDescription && errors.taskDescription)}
                       fullWidth
                       helperText={touched.taskDescription && errors.taskDescription}
                       label="Description"
-                      margin="normal"
+                  
                       name="taskDescription"
                       onBlur={handleBlur}
                       onChange={handleChange}
                       type="text"
                       value={values.taskDescription}
                       variant="outlined"
+                      multiline={true}
+                      rows={3}
                     />
+                </Grid>
 
-<FormControl sx={{ m: 1, minWidth: 120, maxWidth: 300 }}>
-        <InputLabel id="demo-multiple-name-label">Members</InputLabel>
-        <Select
+                <Grid
+              item
+              
+            >
+                         <FormControl sx={{  width: 320 }}>
+                           <InputLabel id="demo-multiple-name-label">Member</InputLabel>      
+                
+              <Select
           labelId="demo-multiple-name-label"
           id="demo-multiple-name"
           multiple
@@ -349,8 +414,10 @@ const EditTask = (props) => {
           name="taskMembers"
           onChange={handleChange}
           onBlur={handleBlur}
-          input={<OutlinedInput label="Name" />}
+          input={<OutlinedInput label="Members" />}
           MenuProps={MenuProps}
+          variant="outlined"
+          fullWidth
         >
           {members.familyMembers.map((user) => (
             <MenuItem
@@ -362,9 +429,22 @@ const EditTask = (props) => {
             </MenuItem>
           ))}
         </Select>
-      </FormControl>            
+        </FormControl>
 
-                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                       
+
+
+
+
+            </Grid>
+
+                <Grid
+                  item
+                  md={6}
+                  xs={12}
+                >
+
+<LocalizationProvider dateAdapter={AdapterDateFns}>
                         <FormControl sx={{ m: 0, mt:2 }} fullWidth>
 
       <TextField
@@ -384,40 +464,43 @@ const EditTask = (props) => {
        </FormControl>
 
     </LocalizationProvider>
-                       
-        <FormGroup>
-                <FormControlLabel control={<Checkbox  />} 
-                   label="Completed" 
-                   checked={values.status}
-                   name="status"
-                   onBlur={handleBlur}
-                   onChange={handleChange}
-                   />  
-              </FormGroup>
+                    
+                 
+                </Grid>
+              
+              
+              </Grid>
+            </CardContent>
+            <Divider />
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                p: 2
+              }}
+            >
+              <Button
+                color="primary"
+                variant="contained"
+                type="submit"
+                disabled={isSubmitting}          
+              >
+                Save details
+              </Button>
+            </Box>
+          </Card>                
 
-
-
-                    <Box sx={{ py: 2 }}>
-                      <Button
-                        color="primary"
-                        disabled={isSubmitting}
-                        fullWidth
-                        size="large"
-                        type="submit"
-                        variant="contained"
-                      >
-                        Save
-                      </Button>
-                    </Box>
                     {isLoading && <CircularProgress color="primary"/>}
                   </form>
                 )}               
               </Formik>
             
+            
+                  
 
-      
-    </Container>
+              
+     
     </Box>
     )
-}
+})
 export default EditTask

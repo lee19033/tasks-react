@@ -8,10 +8,15 @@ import ImageListData from './imageListData';
 const apikey = "LIVDSRZULELA";
 const limit = 20; 
 
-const ImageBoard = () => {
+const ImageBoard = (props) => {
     const [searchTerm, setSearchTerm]  = useState('cute bear');
     const [loadedImages, setLoadedImages] = useState([]);
     const { isLoading, error, sendRequest, clearError } = useHttpClient();
+
+    const saveImageHandler = (imageSrc) => {
+        console.log('board:' + imageSrc);
+        props.onSaveImage(imageSrc);
+    }
 
     useEffect(() => {
         const fetchImages = async () => {
@@ -37,7 +42,7 @@ const ImageBoard = () => {
         }
         {isLoading && <CircularProgress color="primary"/>}
 
-        {!isLoading && loadedImages &&  <ImageListData items={loadedImages} />}
+        {!isLoading && loadedImages &&  <ImageListData items={loadedImages} onClickImage={saveImageHandler}/>}
      </React.Fragment>       
     );
 }

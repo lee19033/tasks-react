@@ -1,12 +1,15 @@
 import React, { useState, useContext } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-
+import Typography from '@material-ui/core/Typography';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import useScrollTrigger from '@material-ui/core/useScrollTrigger';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Avatar from '@material-ui/core/Avatar';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+import Grid from '@material-ui/core/Grid';
+
 import  { Link } from 'react-router-dom';
 import GroupAddIcon from '@material-ui/icons/GroupAdd';
 import Dialog from '@material-ui/core/Dialog';
@@ -15,8 +18,6 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import CancelIcon from '@material-ui/icons/Cancel';
 import Box from '@material-ui/core/Box';
 import NewGroup from '../groups/NewGroup';
-
-
 import GroupIcon from '@material-ui/icons/Group';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import SettingsIcon from '@material-ui/icons/Settings';
@@ -40,6 +41,13 @@ import CreateNewFolderTwoToneIcon from '@material-ui/icons/CreateNewFolderTwoTon
 import LoyaltyTwoToneIcon from '@material-ui/icons/LoyaltyTwoTone';
 import SettingsTwoToneIcon from '@material-ui/icons/SettingsTwoTone';
 import ExitToAppTwoToneIcon from '@material-ui/icons/ExitToAppTwoTone';
+import PersonOutlineOutlinedIcon from '@material-ui/icons/PersonOutlineOutlined';
+import PersonOutlineTwoToneIcon from '@material-ui/icons/PersonOutlineTwoTone';
+import TableChartTwoToneIcon from '@material-ui/icons/TableChartTwoTone';
+import DashboardTwoToneIcon from '@material-ui/icons/DashboardTwoTone';
+import logo from '../../assets/logo.svg';
+import Stack from '@material-ui/core/Stack';
+
 
 const drawerWidth = 240;
 
@@ -66,7 +74,7 @@ const useStyles = makeStyles(theme => ({
     marginLeft: "5px"
   },
   tabContainer: {
-    /*marginLeft: 'auto'*/
+    marginLeft: 'auto'
   },
   tab: {
     ...theme.mixins.tab,
@@ -74,12 +82,11 @@ const useStyles = makeStyles(theme => ({
     marginLeft: "5px"
   },
   avatar: {
-    marginLeft: "auto",
-    marginRight: "25px",
+    marginRight: "80px",
   },
   appBar: {
     height: "4rem",
-    backgroundColor: '#5664D2',
+    backgroundColor: 'green',
   },
   paper: {
     backgroundColor: "#f4f6f8",
@@ -87,7 +94,10 @@ const useStyles = makeStyles(theme => ({
   cover: {
     height: '50px', 
     width:'100%',
-    backgroundColor: 'lightskyblue',
+    backgroundColor: ' #94c7ff',
+  },
+  imglogo: {
+    marginLeft: 'auto',
   }
 
 }));
@@ -108,7 +118,12 @@ const MainHeader = (props) => {
   const [openGroup, setOpenGroup] = useState(false);
   const [data, setData] = useState(props.items); 
 
-  const auth = useContext(AuthContext); 
+  const auth = useContext(AuthContext);  
+  const user = auth.userId;
+
+  const matches = useMediaQuery(theme.breakpoints.up('sm'));
+  const drawerMode = matches ? 'permanent' : 'persistent'  ;
+
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -138,6 +153,11 @@ const MainHeader = (props) => {
     setOpen(false);
   };
 
+  const handelLogout = () => {
+    handleDrawerClose();
+    auth.logout(); 
+  }
+
   const saveGroupHandler = (saveGroupData) => {
     console.log("submit!");
     console.log(saveGroupData);
@@ -152,29 +172,32 @@ const MainHeader = (props) => {
   return (
     <React.Fragment>
       <ElevationScroll>
-        <Container maxWidth={false}>
+        <Container maxWidth={FontFaceSetLoadEvent}>
          <AppBar position="fixed" className={classes.appBar}>
            {auth.isLoggedIn && 
-          <Toolbar disableGutters>
-
-<IconButton
+          <Toolbar>
+                      <IconButton
             color="inherit"
             aria-label="open drawer"
             onClick={handleDrawerOpen}
             edge="start"
-            sx={{ ml: 0.1, ...(open && { display: 'none' }) }}
+            sx={{  width:'40px', ml: 0.1, ...(open && { display: 'none' }), }}
           >
-            <MenuIcon />
+            <MenuIcon sx={{fontSize:'large', ml: 0,pl:0, color:'white[500]',width:'30px',height:'80px'}}/>
           </IconButton>
+          
+              <img src={logo} alt="logo" className={classes.imglogo} />
 
-            
-            <Avatar alt="user name" className={classes.avatar}>LA</Avatar>
+
+
+
+          
           </Toolbar>
 }
         </AppBar>
 
-
-        <Drawer
+{auth.isLoggedIn && 
+<Drawer 
         sx={{
           width: drawerWidth,
           flexShrink: 0,
@@ -183,64 +206,113 @@ const MainHeader = (props) => {
             boxSizing: 'border-box',
           },
         }}
-        variant="persistent"
+        variant={drawerMode}
         anchor="left"
         open={open}
       >
         <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-          </IconButton>
+          <Grid container
+                direction="row"
+                justify="space-between"
+                alignItems="flex-start"   
+                spacing={2}
+                >
+            <Grid item>
+        {(user?.image !== undefined) &&  
+               <Avatar alt="user name"      
+                   src={`http://localhost:5000/${user.image.replaceAll('\\','/')}`}>
+               </Avatar>          
+          } 
+          {(!user?.image || user?.image==='') && 
+            <Avatar alt="user name">        
+                   </Avatar> 
+          } 
+          </Grid>
+          <Grid item mt={1.5}>
+
+          <Typography
+            color="textSecondary"
+            gutterBottom
+            noWrap
+            variant="h6"
+          
+          >
+           {`${user?.firstName} ${user?.lastName}` }
+          </Typography>
+          </Grid>
+
+          <Grid item>
+
+          {!matches && 
+            <IconButton onClick={handleDrawerClose}>
+              {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+            </IconButton>
+          }
+          </Grid>
+          </Grid>
         </DrawerHeader>
         <Divider />
         <List>
-            <ListItem button key={'Group'} onClick={openGroupHandel}>
-              <ListItemIcon>
-                 <CreateNewFolderTwoToneIcon sx={{color: 'blue'}}/> 
-              </ListItemIcon>
-              <ListItemText primary={'Create new board'} />
-            </ListItem>
 
-            <ListItem button key={'Family'} onClick={openGroupHandel}>
+          <Link to="/groups">
+            <ListItem button key={'Groups'} onClick={handleDrawerClose}>
               <ListItemIcon>
-                 <LoyaltyTwoToneIcon sx={{color: 'blue'}}/> 
+                 <DashboardTwoToneIcon sx={{color: 'blue'}}/> 
               </ListItemIcon>
-              <ListItemText primary={'Family members'} />
+              <ListItemText primary={'My family board'} />
             </ListItem>
+          </Link>
 
-            <ListItem button key={'Settings'} onClick={openGroupHandel}>
+            <Link to="/family">
+                <ListItem button key={'Family'} onClick={handleDrawerClose}>             
+                      <ListItemIcon>
+                        <LoyaltyTwoToneIcon sx={{color: 'blue'}}/> 
+                      </ListItemIcon>
+                      <ListItemText primary={'Family members'} />
+                </ListItem>
+            </Link>
+
+            <Link to="/account">
+            <ListItem button key={'Settings'} onClick={handleDrawerClose}>
+              <ListItemIcon>
+                 <PersonOutlineTwoToneIcon sx={{color: 'blue'}}/> 
+              </ListItemIcon>
+              <ListItemText primary={'Account'} />
+            </ListItem>
+            </Link>
+
+            
+            <Link to="/settings">
+            <ListItem button key={'Settings'} onClick={handleDrawerClose}>
               <ListItemIcon>
                  <SettingsTwoToneIcon sx={{color: 'blue'}}/> 
               </ListItemIcon>
               <ListItemText primary={'Settings'} />
             </ListItem>
+            </Link>
+
+            <Link to="/settings">
+            <ListItem button key={'Report'} onClick={handleDrawerClose}>
+              <ListItemIcon>
+                 <TableChartTwoToneIcon sx={{color: 'blue'}}/> 
+              </ListItemIcon>
+              <ListItemText primary={'Tasks report'} />
+            </ListItem>
+            </Link>
   
-            <ListItem button key={'Logout'} onClick={openGroupHandel}>
+            <Link>
+            <ListItem button key={'Logout'} onClick={handelLogout}>
               <ListItemIcon>
                  <ExitToAppTwoToneIcon sx={{color: 'blue'}}/> 
               </ListItemIcon>
               <ListItemText primary={'Logout'} />
             </ListItem>
+            </Link>
   
   
   
         </List>
-      </Drawer>
-
-      <Dialog open={openGroup}>
-              <Box className={classes.cover} sx={{ display: 'flex', flexDirection: 'row-reverse'}}>
-              <CancelIcon sx={{color: 'white', fontSize: 'Large', width:'45px', height:'50px'}} onClick={closeGroupHandel} />
-           </Box>
-       <DialogContent className={classes.paper}>
-         <Box display="flex"> 
-          
-           <Box>
-             <NewGroup onClose={closeGroupHandel} />
-           </Box>
-         </Box>
-       </DialogContent>
-     </Dialog>
-
+      </Drawer>}
 
         </Container>
       </ElevationScroll>

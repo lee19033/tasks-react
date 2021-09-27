@@ -16,14 +16,17 @@ import { makeStyles } from '@material-ui/core/styles';
 import { v4 as uuidv4 } from 'uuid';
 import CloseIcon from '@material-ui/icons/Close';
 import CancelIcon from '@material-ui/icons/Cancel';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+
 
 import EditTask from "./EditTask";
 import TaskItem from "./TaskItem";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles( theme => ({
     root: {
       maxWidth: '26rem',
-      margin: '5px'
+      margin: '5px',
     },
     media: {
       height: 140,
@@ -40,9 +43,15 @@ const useStyles = makeStyles({
       height: '50px', 
       width:'100%',
       backgroundColor: 'lightskyblue',
-    }
+    },
+    box: {
+      minHeight: '100%',
+      [theme.breakpoints.up('sm')]: {
+        paddingLeft: 240,
+      }
+    },
     
-  });
+  }));
 
   function tasksReducer(state, action) {
     let rowIndex = 0; 
@@ -64,10 +73,7 @@ const useStyles = makeStyles({
         return update;
 
       case 'update': 
-      console.log('update reducer' + action.task.id);
         rowIndex = state.findIndex(item => item._id === action.task.id);
-        console.log(state);
-        console.log(rowIndex);
         if (rowIndex < 0) {
             return state;
         }
@@ -89,10 +95,14 @@ const TaskList = (props) => {
     
     const classes = useStyles();
     const [open, setOpen] = useState(false);
+    const [tabValue, setTabValue] = useState("1");
     const [selectedtask, setSelectedTask] = useState({}); 
     const [taskList, setTaskList] = useReducer(tasksReducer, props.items);
     const groupName = props.name;   
 
+    const handelTabChange = (event, newValue) => {
+      setTabValue(newValue);
+    }
     const handleOpen = (task) => {
         console.log('222'+ task);
         setOpen(true);
@@ -132,33 +142,43 @@ const TaskList = (props) => {
         <React.Fragment>
             
 
-                <Box
-                sx={{
-                  minHeight: '100%',
-                }}
-              >
-                  
-      
-                  <Container maxWidth={false}>
+                <Box className={classes.box}>
+                        
+                  <Container  maxWidth="lg">
 
                   <Grid container direction="row" mt={3}>
                       <Grid item xs={7}>
                   <Typography
-                     color="textPrimary"
+                     color="primary"
                      variant="h4"
                   >
                        {groupName}
                        
                  </Typography>
                  </Grid>
+                 
                  <Grid item xs={5}> 
                           
                  <Box  sx={{ display: 'flex', flexDirection: 'row-reverse'}}>
-                          <Button variant="contained" startIcon={<AddCircleOutlineIcon />} onClick={handleOpen}>
+                          <Button variant="outlined" startIcon={<AddCircleOutlineIcon />} onClick={handleOpen}>
                                   New Task
                           </Button>
                           </Box>
                  </Grid>
+                 </Grid>
+                 <Grid container direction="row">
+                   <Grid item> 
+                 <Tabs
+    value={tabValue}
+    onChange={handelTabChange}
+    indicatorColor="primary"
+    textColor="primary"
+  >
+    <Tab label="To do" value="1"/>
+    <Tab label="completed" value="2"/>
+    <Tab label="all tasks" value="3"/>
+  </Tabs>
+</Grid>
                  </Grid>
 
                              <Grid container spacing={1} mt={1}>
@@ -169,6 +189,7 @@ const TaskList = (props) => {
                                lg={3}
                                 sm={6}
                                 xl={3}
+                                md={4}
                                 xs={12}>
                                                                              
                                   <TaskItem 
@@ -177,9 +198,9 @@ const TaskList = (props) => {
                                         name={task.taskName}
                                         description= {task.taskDescription}
                                         duedate = {task.taskDuedate}
-                                        image = {task.image} 
+                                        image = {task.taskImage} 
                                         group = {task.groupId} 
-                                        status = {task.taskStatus ? task.taskStatus.toString() : 'undefined'}
+                                        status = {task.taskStatus ? task.taskStatus : false}
                                         members = {task.taskMembers}
                                         updatetaskhandler = {updateTaskHandler}
                                         deletetaskhandler = {deleteTaskHandler}
@@ -204,21 +225,12 @@ const TaskList = (props) => {
              <Dialog open={open} 
            
             >
-               <Box className={classes.cover} sx={{ display: 'flex', flexDirection: 'row-reverse'}}>
-               <CancelIcon sx={{color: 'white', fontSize: 'Large', width:'45px', height:'50px'}} onClick={handleClose} />
-            </Box>
-        <DialogContent className={classes.paper}>
-          <Box display="flex"> 
-           
-            <Box>
+               
             <EditTask   groupId={props.groupId}
                         onClose={handleClose} 
                         onSaveTaskHandler={saveTaskHandler}
                         selectedtask={selectedtask}
                         editTaskFlag={false}/>
-            </Box>
-          </Box>
-        </DialogContent>
       </Dialog>
 
                

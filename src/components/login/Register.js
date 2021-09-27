@@ -38,7 +38,7 @@ const Register = () => {
             'Content-Type': 'application/json'
           },
       );       
-        auth.login(responseData.user.id);
+        auth.login(responseData.user, responseData.token);
       }
       catch(err) {
         console.log(err);
@@ -87,11 +87,8 @@ const Register = () => {
                 })
             }
             onSubmit= {(values, {setSubmitting}) => {
-              //navigate('/app/dashboard', { replace: true });
-              console.log(values);
               setSubmitting(false);
               createUser(values);
-            
             }}
           >
             {({
@@ -122,6 +119,7 @@ const Register = () => {
                 <TextField
                   error={Boolean(touched.firstName && errors.firstName)}
                   fullWidth
+                  required
                   helperText={touched.firstName && errors.firstName}
                   label="First name"
                   margin="normal"
@@ -134,6 +132,7 @@ const Register = () => {
                 <TextField
                   error={Boolean(touched.lastName && errors.lastName)}
                   fullWidth
+                  required
                   helperText={touched.lastName && errors.lastName}
                   label="Family Name"
                   margin="normal"
@@ -146,6 +145,7 @@ const Register = () => {
                 <TextField
                   error={Boolean(touched.email && errors.email)}
                   fullWidth
+                  required
                   helperText={touched.email && errors.email}
                   label="Email Address"
                   margin="normal"
@@ -158,21 +158,9 @@ const Register = () => {
                 />
 
                 <TextField
-                  error={Boolean(touched.email && errors.email)}
-                  fullWidth
-                  helperText={touched.email && errors.email}
-                  label="Add Family members Email Address sperate by comma"
-                  margin="normal"
-                  name="membersEmailArray"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.membersEmailArray}
-                  variant="outlined"
-                />
-
-                <TextField
                   error={Boolean(touched.password && errors.password)}
                   fullWidth
+                  required
                   helperText={touched.password && errors.password}
                   label="Password"
                   margin="normal"
